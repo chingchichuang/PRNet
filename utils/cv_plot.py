@@ -4,7 +4,7 @@ import cv2
 end_list = np.array([17, 22, 27, 42, 48, 31, 36, 68], dtype = np.int32) - 1
 def plot_kpt(image, kpt):
     ''' Draw 68 key points
-    Args: 
+    Args:
         image: the input image
         kpt: (68, 3).
     '''
@@ -20,12 +20,28 @@ def plot_kpt(image, kpt):
     return image
 
 
+def plot_crop(image, vertices):
+    # image = image[...,::-1].copy()
+    image = image.copy()
+    out_face = np.zeros_like(image)
+    vertices = np.round(vertices).astype(np.int32)
+    reshaped_vertices = np.array([vertices[:,:2]])
+    feature_mask = np.zeros((image.shape[0], image.shape[1]))
+
+    remapped_image = cv2.convexHull(reshaped_vertices)
+    cv2.fillConvexPoly(feature_mask, remapped_image, 1)
+    feature_mask = feature_mask.astype(np.bool)
+    out_face[feature_mask] = image[feature_mask]
+
+    return out_face
+
 def plot_vertices(image, vertices):
     image = image.copy()
     vertices = np.round(vertices).astype(np.int32)
+
     for i in range(0, vertices.shape[0], 2):
         st = vertices[i, :2]
-        image = cv2.circle(image,(st[0], st[1]), 1, (255,0,0), -1)  
+        image = cv2.circle(image,(st[0], st[1]), 2, (255,0,0), -1)  
     return image
 
 
